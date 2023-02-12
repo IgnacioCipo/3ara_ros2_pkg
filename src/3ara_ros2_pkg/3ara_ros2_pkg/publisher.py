@@ -1,3 +1,4 @@
+
 import os
 import sys
 import rclpy
@@ -9,15 +10,23 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5 import uic
+from rclpy.node import Node
 
+class MinimalPublisher(Node):
+    def __init__(self):
+        super().__init__('minimal_publisher')
+        
 
 class Window(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         #ui_path = os.path.dirname(os.path.abspath(__file__))
         uic.loadUi("/home/cipo/Documents/ROS2_Tutorials/ros2_ws/src/3ara_ros2_pkg/3ara_ros2_pkg/MainWindow.ui", self)   #Full path to .ui file
-
-        #self.pub = node.create_publisher(JointState 'setpoint_angles', 10)
+        
+        # Create a node
+        self.publisher = MinimalPublisher()
+        self.publisher_ = self.publisher.create_publisher(JointState, 'setpoint_angles', 10)
+        
         self.joints = JointState()
         self.joints.name = ['angle_1', 'angle_2', 'angle_3']
       
@@ -87,19 +96,21 @@ class Window(QMainWindow):
         self.showLCD_1.display(self.jointOneSlider.value())
         self.showLCD_2.display(self.jointTwoSlider.value())
         self.showLCD_3.display(self.jointThreeSlider.value())
-        self.joints.position = [self.jointOneSlider.value(), self.jointTwoSlider.value(), self.jointThreeSlider.value()]
-        self.pub.publish(self.joints)
+        #self.joints.position = [self.jointOneSlider.value(), self.jointTwoSlider.value(), self.jointThreeSlider.value()]
+        self.joints.position = [float(self.jointOneSlider.value()), float(self.jointTwoSlider.value()), float(self.jointThreeSlider.value())]
+        self.publisher_.publish(self.joints)
 
     def rightSlideValueChanged(self):
         self.showIKJointOne.display(self.IKJointOne.value())
         self.showIKJointTwo.display(self.IKJointTwo.value())
         self.showIKJointThree.display(self.IKJointThree.value())
 
+
 def main(arg=None):
     
     app = QApplication(sys.argv)
-    #rclpy.init(args=sys.argv)
-    #node = rclpy.create_node('robot_gui')
+    rclpy.init(args=sys.argv)
+    
     controlWindow = Window()
     controlWindow.show()
     app.exec_()
