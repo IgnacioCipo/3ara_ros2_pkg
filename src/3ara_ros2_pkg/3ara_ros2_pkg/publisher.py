@@ -20,8 +20,9 @@ class MinimalPublisher(Node):
 class Window(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
-        #ui_path = os.path.dirname(os.path.abspath(__file__))
-        uic.loadUi("/home/cipo/Documents/ROS2_Tutorials/ros2_ws/src/3ara_ros2_pkg/3ara_ros2_pkg/MainWindow.ui", self)   #Full path to .ui file
+
+        # Loads the .ui file (graphical interface)
+        uic.loadUi("/home/cipo/Documents/ROS2_Tutorials/ros2_ws/src/3ara_ros2_pkg/3ara_ros2_pkg/MainWindow.ui", self)  
         
         # Create a node
         self.publisher = MinimalPublisher()
@@ -91,14 +92,13 @@ class Window(QMainWindow):
         self.joints.position = [self.IKJointOne.value(), self.IKJointTwo.value(), self.IKJointThree.value()]
         self.pub.publish(self.joints) 
         
-
+    # Displays the value of each joint and publish it into 
     def slideValueChanged(self):
         self.showLCD_1.display(self.jointOneSlider.value())
         self.showLCD_2.display(self.jointTwoSlider.value())
         self.showLCD_3.display(self.jointThreeSlider.value())
-        #self.joints.position = [self.jointOneSlider.value(), self.jointTwoSlider.value(), self.jointThreeSlider.value()]
         self.joints.position = [float(self.jointOneSlider.value()), float(self.jointTwoSlider.value()), float(self.jointThreeSlider.value())]
-        self.publisher_.publish(self.joints)
+        self.publisher_.publish(self.joints)        # Publish 
 
     def rightSlideValueChanged(self):
         self.showIKJointOne.display(self.IKJointOne.value())

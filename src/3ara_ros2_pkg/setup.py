@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'publisher = 3ara_ros2_pkg.publisher:main',
+            'publishToSTM32 = 3ara_ros2_pkg.publishToSTM32:main',
         ],
     },
 )
