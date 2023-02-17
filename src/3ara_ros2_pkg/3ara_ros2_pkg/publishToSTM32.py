@@ -1,12 +1,45 @@
 import rclpy
-#import serial
+import serial
 import threading
 import sys
+import os
 from std_msgs.msg import Float32
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
 import struct
 from rclpy.node import Node
+
+
+class  BluetoothComms(Node):
+    def __init__(self):
+        super().__init__('stm32')
+
+    # Send info to STM32f407
+    def sendToSTM(self, joints):
+        try:
+            self.serial = serial.Serial('/dev/rfcomm0', 57600, timeout=10)
+            #self.serial.open()
+            self.get_logger().info('Connected!!')
+        except:
+            self.serial.close()
+            sys.exit(0)
+
+        angle_1 = joints.position[0]
+        angle_2 = joints.position[1]
+        angle_3 = joints.position[2]
+        print("Angle 1: ", angle_1)
+        print("Angle 2: ", angle_2)
+        print("Angle 3: ", angle_3)
+     
+        angle_1_bytes = struct.pack('f', angle_1)
+        angle_2_bytes = struct.pack('f', angle_2)
+        angle_3_bytes = struct.pack('f', angle_3)
+        tx_buffer = [0xA1, angle_1_bytes[0], angle_1_bytes[1], angle_1_bytes[2], angle_1_bytes[3], 
+            angle_2_bytes[0], angle_2_bytes[1], angle_2_bytes[2], angle_2_bytes[3],
+            angle_3_bytes[0], angle_3_bytes[1], angle_3_bytes[2], angle_3_bytes[3], 0xB1]
+
+        self.serial.write(tx_buffer)
+        print("Package sent")
 
 '''
 class SerialCommunication():
@@ -65,11 +98,22 @@ class Subscriber(Node):
 
     def my_callback(self, msg):
         self.get_logger().info('I heard: "%s"' % msg.position)
+        self.Comms = BluetoothComms()
+        self.Comms.sendToSTM(msg)
 
 
 def main(arg=None):
     rclpy.init(args=sys.argv)
-
+    '''
+    try:
+        serial_ = serial.Serial('/dev/rfcomm0', 57600, timeout=10)
+        serial_.open()
+        get_logger().info('Connected!!')
+    except:
+        #serial.close()
+        get_logger().info('Nop!!')
+        sys.exit(0)
+    '''
     my_subscriber_node = Subscriber()
 
     rclpy.spin(my_subscriber_node)
